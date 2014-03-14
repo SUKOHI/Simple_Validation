@@ -173,14 +173,14 @@ class Simple_Validation {
 					
 					if(!call_user_func_array($this->_custom_functions[$rule_name], $rule_params)) {
 						
-						$this->setErrorMessage($value_key, $error_message);
+						$this->setErrorMessage($value_key, $rule_name, $error_message);
 						$this->_error_count++;
 						
 					}
 					
 				} else if(!call_user_func_array(array($this, $rule_name), $rule_params)) {
 					
-					$this->setErrorMessage($value_key, $error_message);
+					$this->setErrorMessage($value_key, $rule_name, $error_message);
 					$this->_error_count++;
 					
 				}
@@ -193,7 +193,7 @@ class Simple_Validation {
 		
 	}
 	
-	private function setErrorMessage($value_key, $error_message) {
+	private function setErrorMessage($value_key, $rule_name, $error_message) {
 		
 		if($this->_error_message_template != '') {
 			
@@ -201,7 +201,7 @@ class Simple_Validation {
 			
 		}
 		
-		$this->_error_messages[$value_key] = $error_message;
+		$this->_error_messages[$value_key][$rule_name] = $error_message;
 		
 	}
 	
@@ -211,11 +211,11 @@ class Simple_Validation {
 		
 	}
 	
-	public function getErrorMessage($value_key) {
+	public function getErrorMessage($value_key, $rule_name) {
 		
-		if(isset($this->_error_messages[$value_key])) {
+		if(isset($this->_error_messages[$value_key][$rule_name])) {
 			
-			return $this->_error_messages[$value_key];
+			return $this->_error_messages[$value_key][$rule_name];
 			
 		}
 		
@@ -281,7 +281,7 @@ class Simple_Validation {
 	if(!$sv->validate()) {
 		
 		print_r($sv->getErrorMessages());
-		echo $sv->getErrorMessage('email_address');
+		echo $sv->getErrorMessage('email_address', 'email');
 		echo $sv->getErrorCount();
 		
 	}
