@@ -8,6 +8,8 @@ class Simple_Validation {
 	private $_error_messages = array();
 	private $_error_count = 0;
 	private $_encoding;
+	private $_error_message_template = '';
+	const ERROR_MESSAGE_REPLACE = '[{message}]';
 	
 	public function __construct($encoding='utf-8') {
 		
@@ -34,6 +36,18 @@ class Simple_Validation {
 	public function setEncoding($encoding) {
 		
 		$this->_encoding = $encoding;
+		
+	}
+	
+	public function setErrorMessageTag($tag_name, $property='') {
+		
+		if($property != '') {
+			
+			$property = ' '. $property;
+			
+		}
+		
+		$this->_error_message_template = '<'. $tag_name . $property .'>'. self::ERROR_MESSAGE_REPLACE .'</'. $tag_name .'>';
 		
 	}
 	
@@ -181,6 +195,12 @@ class Simple_Validation {
 	
 	private function setErrorMessage($value_key, $error_message) {
 		
+		if($this->_error_message_template != '') {
+			
+			$error_message = str_replace(self::ERROR_MESSAGE_REPLACE, $error_message, $this->_error_message_template);
+			
+		}
+		
 		$this->_error_messages[$value_key] = $error_message;
 		
 	}
@@ -216,8 +236,9 @@ class Simple_Validation {
 	
 	$sv = new Simple_Validation();	// or $sv = new Simple_Validation('utf-8');
 	
-	$sv->setEncoding('utf-8');	// skippable
-	$sv->setCustomRule('xxx', function($str, $arg_1, $arg_2){	// Custom Rule: skippable
+	$sv->setEncoding('utf-8');									// Skippable
+	$sv->setErrorMessageTag('p', 'class="p_error"');			// Skippable
+	$sv->setCustomRule('xxx', function($str, $arg_1, $arg_2){	// Skippable
 	
 		return true;
 	
