@@ -229,6 +229,30 @@ class Simple_Validation {
 		
 	}
 	
+	public function getRuleNames() {
+		
+		return array(
+				
+			'length', 
+			'minLength', 
+			'maxLength', 
+			'betweenLength', 
+			'equal', 
+			'minValue', 
+			'maxValue', 
+			'betweenValue', 
+			'notEmpty', 
+			'alpha', 
+			'alphaNumeric', 
+			'numeric', 
+			'email', 
+			'url', 
+			'date'
+				
+		);		
+		
+	}
+	
 }
 /*** Example
 
