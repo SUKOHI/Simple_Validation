@@ -147,12 +147,32 @@ class Simple_Validation {
 		
 	}
 	
-	public function date($year, $month, $day) {
+	public function date($date, $date_format) {
 		
-		return (checkdate($month, $day, $year)
-					&& $this->length($year, 4)
-					&& $this->betweenValue($month, 1, 12)
-					&& $this->betweenValue($day, 1, 31));
+		$format_regexes = array(
+				
+				'd' => '[0-9]{2}', 
+				'j' => '[0-9]{1,2}', 
+				'w' => '[0-9]{1}', 
+				'm' => '[0-9]{2}', 
+				'Y' => '[0-9]{4}', 
+				'y' => '[0-9]{2}', 
+				'g' => '[0-9]{1,2}', 
+				'G' => '[0-9]{1,2}', 
+				'h' => '[0-9]{2}', 
+				'H' => '[0-9]{2}', 
+				'i' => '[0-9]{2}', 
+				's' => '[0-9]{2}'
+				
+		);
+		
+		foreach ($format_regexes as $format => $format_regex) {
+			
+			$date_format = str_replace($format, $format_regex, $date_format);
+			
+		}
+		
+		return preg_match('|'. $date_format .'|', $date);
 		
 	}
 	
@@ -205,22 +225,40 @@ class Simple_Validation {
 		
 	}
 	
-	public function getErrorMessages() {
+	public function getErrorMessages($value_key='') {
 		
-		return $this->_error_messages;
+		$returns = array();
 		
-	}
-	
-	public function getErrorMessage($value_key, $rule_name) {
-		
-		if(isset($this->_error_messages[$value_key][$rule_name])) {
+		if(empty($value_key)) {
 			
-			return $this->_error_messages[$value_key][$rule_name];
+			$returns = $this->_error_messages;
+			
+		} else {
+			
+			$returns = $this->_error_messages[$value_key];
 			
 		}
 		
-		return '';
+		if(!is_array($returns)) {
+			
+			return array();
+			
+		}
 		
+		return $returns;
+		
+	}
+
+	public function getErrorMessage($value_key, $rule_name) {
+	
+		if(isset($this->_error_messages[$value_key][$rule_name])) {
+				
+			return $this->_error_messages[$value_key][$rule_name];
+				
+		}
+	
+		return '';
+	
 	}
 	
 	public function getErrorCount() {
@@ -229,50 +267,24 @@ class Simple_Validation {
 		
 	}
 	
-	public function getRuleNames() {
-		
-		return array(
-				
-			'length', 
-			'minLength', 
-			'maxLength', 
-			'betweenLength', 
-			'equal', 
-			'minValue', 
-			'maxValue', 
-			'betweenValue', 
-			'notEmpty', 
-			'alpha', 
-			'alphaNumeric', 
-			'numeric', 
-			'email', 
-			'url', 
-			'date'
-				
-		);		
-		
-	}
-	
 }
 /*** Example
 
 	require 'simple_validation.php';
 	
-	$sv = new Simple_Validation();	// or $sv = new Simple_Validation('utf-8');
+	$sv = new Simple_Validation();
 	
-	$sv->setEncoding('utf-8');									// Skippable
-	$sv->setErrorMessageTag('p', 'class="p_error"');			// Skippable
-	$sv->setCustomRule('xxx', function($str, $arg_1, $arg_2){	// Skippable
+	$sv->setCustomRule('xxx', function($str, $arg_1, $arg_2){
 	
 		return true;
 	
 	});
-	
 	$sv->setCheckValues(array(
 			
 			'name' => 'my name', 
 			'email_address' => 'test@example.com', 
 			'password' => '1234567890', 
+			'birthday' => '', 
 			'custom' => 'xxx'
 			
 	));
@@ -294,9 +306,15 @@ class Simple_Validation {
 				'betweenLength' => array(5, 10, 'Error message 4')
 			
 			), 
+			'birthday' => array(
+			
+				'date' => array('Y/m/d', 'Error message 5'), 
+				'notEmpty' => array('Error message 6')
+			
+			), 
 			'custom' => array(
 			
-				'xxx' => array('arg_1', 'arg_2', 'Error message 5')
+				'xxx' => array('arg_1', 'arg_2', 'Error message 7')
 			
 			)
 			
@@ -305,7 +323,8 @@ class Simple_Validation {
 	if(!$sv->validate()) {
 		
 		print_r($sv->getErrorMessages());
-		echo $sv->getErrorMessage('email_address', 'email');
+		print_r($sv->getErrorMessages('birthday'));
+		echo $sv->getErrorMessage('birthday', 'date');
 		echo $sv->getErrorCount();
 		
 	}
