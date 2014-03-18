@@ -177,17 +177,17 @@ class Simple_Validation {
 	}
 	
 	public function validate() {
-		
+	
 		$this->_error_messages = array();
 		$this->_error_count = 0;
 		
 		foreach ($this->_rules as $value_key => $rule_values) {
-			
+		
 			foreach ($rule_values as $rule_name => $rule_params) {
 				
 				$error_message = $rule_params[count($rule_params)-1];
 				array_pop($rule_params);
-				array_unshift($rule_params, $this->_check_values[$value_key]);
+				array_unshift($rule_params, $this->getCheckValue($value_key));
 				
 				if(!method_exists($this, $rule_name)) {
 					
@@ -210,6 +210,29 @@ class Simple_Validation {
 		}
 		
 		return ($this->_error_count == 0);
+		
+	}
+	
+	private function getCheckValue($value_key) {
+		
+		if(isset($this->_check_values[$value_key])) {
+			
+			return $this->_check_values[$value_key];
+			
+		} else if(preg_match('|([^\[]+)\[([0-9]+)\]$|', $value_key, $matches)) {
+			
+			$value_key = $matches[1];
+			$index = $matches[2];
+			
+			if(isset($this->_check_values[$value_key][$index])) {
+				
+				return $this->_check_values[$value_key][$index];
+				
+			}
+			
+		}
+		
+		return '';
 		
 	}
 	
